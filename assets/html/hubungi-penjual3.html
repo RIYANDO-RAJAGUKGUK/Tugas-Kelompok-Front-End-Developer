@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hubungi Penjual</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #f2f4f7, #e0f7fa);
+      padding: 40px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background-color: #fff;
+      padding: 35px 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      transition: 0.3s;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00796b;
+      margin-bottom: 20px;
+    }
+
+    .penjual-info {
+      margin-bottom: 30px;
+      background: #f0f9f9;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .penjual-info p {
+      margin: 8px 0;
+      font-size: 15px;
+    }
+
+    form label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      background: #fefefe;
+      transition: 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #00796b;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0,121,107,0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 12px 20px;
+      background-color: #00796b;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #005f54;
+    }
+
+    .success-message {
+      display: none;
+      margin-top: 20px;
+      color: green;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 25px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Hubungi Penjual</h1>
+
+    <div class="penjual-info">
+      <p><strong>Nama Penjual:</strong> Budi Santoso</p>
+      <p><strong>Email:</strong> budi76@gmail.com</p>
+      <p><strong>Telepon:</strong> +62 812-3456-7890</p>
+      <p><strong>Alamat:</strong> Jl. Melati No. 25, Bali</p>
+    </div>
+
+    <form id="formPesan">
+      <label for="nama">Nama Anda</label>
+      <input type="text" id="nama" name="nama" required />
+
+      <label for="email">Email Anda</label>
+      <input type="email" id="email" name="email" required />
+
+      <label for="pesan">Pesan</label>
+      <textarea id="pesan" name="pesan" required></textarea>
+
+      <button type="submit">Kirim Pesan</button>
+    </form>
+
+    <div class="success-message" id="successMessage">
+      Pesan berhasil dikirim!
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeZuwDZLCh4h8J7yWJQfWi2wJPQdWc4WA",
+      authDomain: "komputasi-awan-73088.firebaseapp.com",
+      projectId: "komputasi-awan-73088",
+      storageBucket: "komputasi-awan-73088.appspot.com",
+      messagingSenderId: "999686590022",
+      appId: "1:999686590022:web:07723eb57cd8dca8e2c447"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("formPesan");
+    const successMessage = document.getElementById("successMessage");
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const nama = document.getElementById("nama").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const pesan = document.getElementById("pesan").value.trim();
+
+      try {
+        await addDoc(collection(db, "pesan_penjual"), {
+          nama,
+          email,
+          pesan,
+          waktu: new Date().toISOString()
+        });
+
+        successMessage.style.display = "block";
+        successMessage.textContent = "Pesan berhasil dikirim ke Firebase!";
+        form.reset();
+      } catch (err) {
+        alert("Gagal mengirim pesan: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>

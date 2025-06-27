@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Keranjang</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 15px;
+    }
+
+    .item img {
+      width: 120px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-right: 20px;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-info h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #222;
+    }
+
+    .item-info p {
+      margin: 5px 0;
+      color: #555;
+    }
+
+    .hapus-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: red;
+    }
+
+    .hapus-btn:hover {
+      color: darkred;
+    }
+
+    .total {
+      text-align: right;
+      margin-top: 30px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #007BFF;
+    }
+
+    .empty {
+      text-align: center;
+      color: #777;
+      font-size: 18px;
+      margin-top: 50px;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-top: 20px;
+      color: #007BFF;
+      text-decoration: none;
+    }
+
+    .back-button:hover {
+      text-decoration: underline;
+    }
+
+    .bayar-btn {
+      display: inline-block;
+      width: auto;
+      margin: 20px 0 0 auto;
+      padding: 12px 24px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .bayar-btn:hover {
+      background-color: #218838;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Keranjang Anda</h1>
+    <div id="keranjang-container"></div>
+    <div class="total" id="total-harga"></div>
+    <div style="text-align: right;">
+      <a href="pembayaran.html" class="bayar-btn" id="bayar-btn">Bayar Sekarang</a>
+    </div>
+    <a href="index.html" class="back-button">← Kembali ke Beranda</a>
+  </div>
+
+  <script src="./assets/js/keranjang.js"></script>
+  <script>
+    function hitungTotalBelanja() {
+      let total = 0;
+
+      const keranjang = JSON.parse(localStorage.getItem("keranjangItems")) || [];
+
+      keranjang.forEach(item => {
+        total += item.harga * item.jumlah;
+      });
+
+      localStorage.setItem("totalBelanja", total);
+
+      const totalElem = document.getElementById("total-harga");
+      const totalBelanja = localStorage.getItem("totalBelanja");
+      if (totalBelanja) {
+        const formatted = new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR"
+        }).format(Number(totalBelanja));
+        totalHargaElem.textContent = formatted;
+      } else {
+        totalHargaElem.textContent = "Rp 0";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", hitungTotalBelanja);
+  </script>
+</body>
+</html>

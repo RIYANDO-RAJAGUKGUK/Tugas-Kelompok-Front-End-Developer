@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hubungi Agen</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #444;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+      background-color: #fdfdfd;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #25d366;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1ebc57;
+    }
+
+    .note {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Hubungi Agen Properti</h2>
+
+    <form onsubmit="return openWhatsApp()">
+      <div class="form-group">
+        <label for="name">Nama Anda</label>
+        <input type="text" id="name" placeholder="Masukkan nama Anda" required>
+      </div>
+
+      <div class="form-group">
+        <label for="method">Pilih Metode Kontak</label>
+        <select id="method" required>
+          <option value="">-- Pilih --</option>
+          <option value="whatsapp">WhatsApp</option>
+          <option value="telepon">Telepon Biasa</option>
+        </select>
+      </div>
+
+      <button type="submit">Hubungi Sekarang</button>
+
+      <p class="note">Anda akan diarahkan langsung ke kontak agen.</p>
+    </form>
+  </div>
+
+  <script>
+    function openWhatsApp() {
+      const name = document.getElementById("name").value;
+      const method = document.getElementById("method").value;
+
+      const agentNumber = "6281234567890"; 
+
+      if (method === "whatsapp") {
+        const message = `Halo, saya ${name}, tertarik dengan properti Anda.`;
+        const url = `https://wa.me/${agentNumber}?text=${encodeURIComponent(message)}`;
+        window.open(url, "_blank");
+      } else if (method === "telepon") {
+        window.location.href = `tel:${agentNumber}`;
+      }
+
+      return false; 
+    }
+  </script>
+
+</body>
+</html>

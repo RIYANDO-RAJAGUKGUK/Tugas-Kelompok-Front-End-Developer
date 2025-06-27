@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detail Properti: New Apartment</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .image {
+      width: 50%;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .price {
+      font-size: 24px;
+      color: #007BFF;
+      font-weight: bold;
+    }
+
+    .description {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #444;
+    }
+
+    .button {
+      margin-top: 30px;
+    }
+
+    .buy-button {
+      background-color: #28a745;
+      color: white;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .buy-button:hover {
+      background-color: #218838;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 30px;
+      color: #555;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img src="./assets/images/property-1.jpg" alt="New Apartment Nice View" class="image">
+
+    <h1>New Apartment Nice View</h1>
+    <p class="price">Rp 850.000.000</p>
+
+    <div class="description">
+      <p>Hunian nyaman dan modern dengan pemandangan kota yang indah. Lokasi strategis dekat pusat perbelanjaan, sekolah, dan transportasi umum.</p>
+      <p>🏠 3 Kamar Tidur | 🚿 2 Kamar Mandi | 🍳 Dapur Modern | 🌆 Balkon Pemandangan Kota</p>
+    </div>
+
+    <div class="button">
+        <button class="buy-button" onclick="tambahKeKeranjang()">🛒 Tambahkan ke Keranjang</button>
+    </div>
+
+    <a class="back-link" href="find-home.html">← Kembali ke Daftar Rumah</a>
+  </div>
+
+  <script src="./assets/js/keranjang.js"></script>
+  <script>
+    function tambahKeKeranjang() {
+      const item = {
+        nama: "New Apartment Nice View",
+        harga: "Rp 850.000.000",
+        gambar: "./assets/images/property-1.jpg"
+      };
+
+      const keranjang = JSON.parse(localStorage.getItem("keranjang")) || [];
+      keranjang.push(item);
+      localStorage.setItem("keranjang", JSON.stringify(keranjang));
+      alert("Properti telah ditambahkan ke keranjang!");
+    }
+  </script>
+</body>
+</html>
