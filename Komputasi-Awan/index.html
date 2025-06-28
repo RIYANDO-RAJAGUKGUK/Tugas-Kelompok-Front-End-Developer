@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Website</title>
+  <link rel="stylesheet" href="./css/style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('./img/background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #ffffff;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 15px 30px;
+    }
+
+    nav .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ff4dd2;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+
+    nav ul li a:hover,
+    nav ul li a.active {
+      color: #ff4dd2;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 90vh;
+      text-align: center;
+      padding: 0 20px;
+      flex-direction: column;
+    }
+
+    .hero .content h1 {
+      font-size: 60px;
+      margin-bottom: 20px;
+      color: #ffffff;
+      text-shadow: 2px 2px 5px rgba(255, 77, 210, 0.6);
+    }
+
+    .hero .content p {
+      font-size: 20px;
+      line-height: 1.6;
+      color: #dddddd;
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+
+    .hero .content button {
+      font-size: 20px;
+      padding: 15px 50px;
+      background-color: #ff4dd2;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(255, 77, 210, 0.3);
+    }
+
+    .hero .content button:hover {
+      background-color: white;
+      color: #ff4dd2;
+      box-shadow: 0 5px 20px rgba(255, 77, 210, 0.6);
+    }
+
+    .form-identitas {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 10px;
+      margin-top: 30px;
+      display: none;
+    }
+
+    .form-identitas input {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+    }
+
+    .form-identitas button {
+      background-color: #ff4dd2;
+      padding: 10px 30px;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .form-identitas button:hover {
+      background-color: white;
+      color: #ff4dd2;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">Quiz.</div>
+    <ul>
+      <li><a href="#" class="active">Home</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <div class="content">
+      <h1>Quiz Website</h1>
+      <p>
+        Selamat datang di platform kuis interaktif! Uji pengetahuanmu sekarang dan raih skor tertinggi.
+      </p>
+      <button onclick="tampilkanForm()">Mulai Sekarang</button>
+
+      <!-- Form identitas mahasiswa -->
+      <div class="form-identitas" id="formIdentitas">
+        <h3>Masukkan Data Mahasiswa</h3>
+        <input type="text" id="nama" placeholder="Nama lengkap" /><br />
+        <input type="text" id="nim" placeholder="NIM" /><br />
+        <button onclick="submitIdentitas()">Lanjut ke Kuis</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function tampilkanForm() {
+      document.getElementById("formIdentitas").style.display = "block";
+    }
+
+    function submitIdentitas() {
+      const nama = document.getElementById("nama").value.trim();
+      const nim = document.getElementById("nim").value.trim();
+
+      if (!nama || !nim) {
+        alert("Mohon isi nama dan NIM terlebih dahulu.");
+        return;
+      }
+
+      // Simpan ke localStorage
+      localStorage.setItem("namaMahasiswa", nama);
+      localStorage.setItem("nimMahasiswa", nim);
+
+      // Redirect ke quiz-setup.html
+      window.location.href = "quiz-setup.html";
+    }
+  </script>
+</body>
+</html>

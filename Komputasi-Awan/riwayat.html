@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riwayat Skor Mahasiswa</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #2a2a40;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #444;
+    }
+
+    th {
+      background-color: #ff4dd2;
+      color: #fff;
+    }
+
+    tr:hover {
+      background-color: #3a3a5a;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 20px;
+      background: #ff4dd2;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .back-btn:hover {
+      background: white;
+      color: #ff4dd2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-btn">← Kembali ke Beranda</a>
+    <h2>Riwayat Skor Mahasiswa</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama</th>
+          <th>Skor</th>
+          <th>Tanggal & Waktu</th>
+        </tr>
+      </thead>
+      <tbody id="riwayatTable">
+        <!-- Data riwayat akan muncul di sini -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem("riwayatKuis")) || [];
+    const tableBody = document.getElementById("riwayatTable");
+
+    if (data.length === 0) {
+      tableBody.innerHTML = "<tr><td colspan='4'>Belum ada riwayat kuis.</td></tr>";
+    } else {
+      data.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.nama}</td>
+          <td>${item.skor}</td>
+          <td>${item.tanggal}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>

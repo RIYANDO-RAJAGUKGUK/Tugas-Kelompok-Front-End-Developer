@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sesi Kuis</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .question-box {
+      background: #2a2a40;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+
+    label {
+      display: block;
+      margin: 5px 0;
+    }
+
+    textarea {
+      width: 100%;
+      height: 60px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: #ff2e63;
+      border: none;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .btn:hover {
+      background: #ff4e7a;
+    }
+
+    .correct { color: #00ff00; font-weight: bold; }
+    .wrong { color: #ff4d4d; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Sesi Kuis Dimulai</h2>
+  <form id="quizForm">
+    <div id="soalContainer"></div>
+    <button type="submit" class="btn">Selesai</button>
+  </form>
+
+  <div id="hasilReview" style="margin-top:30px;"></div>
+
+  <script>
+    const soalSesi = JSON.parse(sessionStorage.getItem('soalKuis')) || [];
+    const nama = sessionStorage.getItem('namaSiswa') || 'Tanpa Nama';
+    const container = document.getElementById('soalContainer');
+    const hasilReview = document.getElementById('hasilReview');
+
+    // Tampilkan soal
+    soalSesi.forEach((soal, index) => {
+      const div = document.createElement('div');
+      div.className = 'question-box';
+      div.innerHTML = `<strong>${index + 1}. [${soal.tipe.toUpperCase()}]</strong> ${soal.question}<br/>`;
+
+      if (soal.tipe === 'pg') {
+        ['A', 'B', 'C', 'D'].forEach(letter => {
+          const optionKey = 'option' + letter;
+          if (soal[optionKey]) {
+            div.innerHTML += `
+              <label>
+                <input type="radio" name="soal_${index}" value="${letter}" required />
+                ${letter}. ${soal[optionKey]}
+              </label>
+            `;
+          }
+        });
+      } else if (soal.tipe === 'esai') {
+        div.innerHTML += `
+          <label>
+            Jawaban Anda:
+            <textarea name="soal_${index}" required></textarea>
+          </label>
+        `;
+      }
+
+      container.appendChild(div);
+    });
+
+    // Saat submit
+    document.getElementById('quizForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      let totalScore = 0;
+      const jawabanLengkap = soalSesi.map((soal, i) => {
+        const name = `soal_${i}`;
+        const pilihanRadio = document.querySelector(`[name="${name}"]:checked`);
+        const isianEsai = document.querySelector(`[name="${name}"]`);
+        const jawabanSiswa = pilihanRadio ? pilihanRadio.value : isianEsai?.value?.trim() || "";
+        let skor = 0;
+        const skorMaks = Number(soal.score) || 0;
+
+        if (soal.tipe === 'pg') {
+          if (jawabanSiswa.toUpperCase() === soal.correctAnswer?.toUpperCase()) {
+            skor = skorMaks;
+          }
+        } else if (soal.tipe === 'esai') {
+          const jawabanSiswaBersih = jawabanSiswa.toLowerCase().replace(/\s+/g, '');
+          const jawabanBenarBersih = (soal.correctAnswer || "").toLowerCase().replace(/\s+/g, '');
+
+          if (jawabanSiswaBersih === jawabanBenarBersih) {
+            skor = skorMaks;
+          } else {
+            skor = 0;
+          }
+        }
+
+        totalScore += skor;
+
+        return {
+          soal: soal.question,
+          tipe: soal.tipe,
+          jawabanSiswa: jawabanSiswa,
+          jawabanBenar: soal.correctAnswer || "(esai - belum ada)",
+          skor: skor
+        };
+      });
+
+      // Tampilkan hasil review
+      hasilReview.innerHTML = `
+        <h3>📋 Hasil Kuis & Ulasan:</h3>
+        <p><strong>Nama Siswa:</strong> ${nama}</p>
+      `;
+
+      soalSesi.forEach((soal, i) => {
+        const jawaban = jawabanLengkap[i].jawabanSiswa;
+        const skor = jawabanLengkap[i].skor;
+        const skorMaks = Number(soal.score) || 0;
+        let ulasan = "";
+
+        if (soal.tipe === 'pg') {
+          const benar = jawaban.toUpperCase() === soal.correctAnswer?.toUpperCase();
+          ulasan = `
+            <div class="question-box">
+              <strong>${i + 1}. ${soal.question}</strong><br>
+              Jawaban Anda: <span class="${benar ? 'correct' : 'wrong'}">${jawaban}</span><br>
+              Jawaban Benar: <span class="correct">${soal.correctAnswer}</span><br>
+              ${benar ? '✅ Benar' : '❌ Salah'} (Skor: ${skor} dari ${skorMaks})
+            </div>
+          `;
+        } else if (soal.tipe === 'esai') {
+          const benarEsai = jawaban.toLowerCase().replace(/\s+/g, '') === (soal.correctAnswer || "").toLowerCase().replace(/\s+/g, '');
+
+          ulasan = `
+            <div class="question-box">
+              <strong>${i + 1}. ${soal.question}</strong><br>
+              Jawaban Anda:<br><em>${jawaban}</em><br>
+              Jawaban Benar:<br><em>${soal.correctAnswer || "-"}</em><br>
+              ${benarEsai ? '✅ Benar' : '❌ Salah'} (Skor: ${skor} dari ${skorMaks})<br>
+              📝 Dinilai berdasarkan jawaban persis (100%)
+            </div>
+          `;
+        }
+
+        hasilReview.innerHTML += ulasan;
+      });
+
+      const totalMaksimum = soalSesi.reduce((sum, s) => sum + (Number(s.score) || 0), 0);
+      hasilReview.innerHTML += `<h3>🎯 Skor Akhir Anda: ${totalScore} dari ${totalMaksimum}</h3>`;
+
+      // Simpan ke localStorage
+      const rekapLama = JSON.parse(localStorage.getItem('rekapNilai')) || [];
+      rekapLama.push({
+        nama: nama,
+        tanggal: new Date().toLocaleString('id-ID'),
+        skor: totalScore,
+        jawaban: jawabanLengkap
+      });
+      localStorage.setItem('rekapNilai', JSON.stringify(rekapLama));
+      localStorage.setItem('hasilKuisTerakhir', totalScore);
+
+      // Redirect ke halaman review
+      window.location.href = `review-jawaban.html?index=${rekapLama.length - 1}`;
+    });
+  </script>
+</body>
+</html>

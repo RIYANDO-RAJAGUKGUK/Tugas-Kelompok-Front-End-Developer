@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Review Jawaban</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .question-box {
+      background: #2a2a40;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+
+    .correct {
+      color: #00ff00;
+      font-weight: bold;
+    }
+
+    .incorrect {
+      color: #ff4c4c;
+      font-weight: bold;
+    }
+
+    .back-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #ff2e63;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+
+    .back-btn:hover {
+      background: #ff4e7a;
+    }
+  </style>
+</head>
+<body>
+  <h2>Review Jawaban</h2>
+  <div id="container"></div>
+  <a class="back-btn" href="nilai.html">← Kembali ke Rekap</a>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const index = parseInt(urlParams.get('index'), 10);
+
+    const riwayat = JSON.parse(localStorage.getItem('riwayatKuis')) || [];
+    const semuaJawaban = JSON.parse(localStorage.getItem('semuaJawaban')) || [];
+
+    const hasil = riwayat[index];
+    const jawabanData = semuaJawaban[index];
+    const container = document.getElementById('container');
+
+    if (!hasil || !jawabanData) {
+      container.innerHTML = "<p>Data jawaban tidak ditemukan.</p>";
+    } else {
+      container.innerHTML += `<p><strong>Nama:</strong> ${hasil.nama}</p>`;
+      container.innerHTML += `<p><strong>Skor:</strong> ${hasil.skor}</p>`;
+      container.innerHTML += `<p><strong>Tanggal:</strong> ${hasil.tanggal}</p><hr/>`;
+
+      let totalScore = 0;
+
+      jawabanData.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = "question-box";
+        let skor = Number(item.skor) || 0;
+        totalScore += skor;
+
+        if (item.tipe === "pg") {
+          const isCorrect = item.jawabanSiswa.toUpperCase() === item.jawabanBenar.toUpperCase();
+          div.innerHTML = `
+            <p><strong>Soal ${i + 1} (PG):</strong> ${item.soal}</p>
+            <p><strong>Jawaban Siswa:</strong> <span class="${isCorrect ? 'correct' : 'incorrect'}">${item.jawabanSiswa}</span></p>
+            <p><strong>Jawaban Benar:</strong> ${item.jawabanBenar}</p>
+            <p><strong>Skor:</strong> ${skor}</p>
+            <p>${isCorrect ? '✅ Benar' : '❌ Salah'}</p>
+          `;
+        }
+
+        else if (item.tipe === "esai") {
+          const keywords = item.jawabanBenar?.toLowerCase().split(',') || [];
+          const jawabanLower = item.jawabanSiswa.toLowerCase();
+          const match = keywords.filter(kata => jawabanLower.includes(kata.trim())).length;
+          div.innerHTML = `
+            <p><strong>Soal ${i + 1} (Esai):</strong> ${item.soal}</p>
+            <p><strong>Jawaban Siswa:</strong> ${item.jawabanSiswa}</p>
+            <p><strong>Kata Kunci:</strong> ${keywords.join(', ')}</p>
+            <p><strong>Kata Kunci Terdeteksi:</strong> ${match} / ${keywords.length}</p>
+            <p><strong>Skor:</strong> ${skor}</p>
+            <p>📝 Dinilai berdasarkan kata kunci</p>
+          `;
+        }
+
+        else if (item.tipe === "multi") {
+          const siswa = item.jawabanSiswa.join(', ');
+          const benar = item.jawabanBenar;
+          const isCorrect = JSON.stringify(item.jawabanSiswa.sort()) === JSON.stringify(benar.sort());
+          div.innerHTML = `
+            <p><strong>Soal ${i + 1} (Multi-Choice):</strong> ${item.soal}</p>
+            <p><strong>Jawaban Siswa:</strong> <span class="${isCorrect ? 'correct' : 'incorrect'}">${siswa}</span></p>
+            <p><strong>Jawaban Benar:</strong> ${benar.join(', ')}</p>
+            <p><strong>Skor:</strong> ${skor}</p>
+            <p>${isCorrect ? '✅ Benar' : '❌ Salah'}</p>
+          `;
+        }
+
+        container.appendChild(div);
+      });
+
+      container.innerHTML += `<div class="question-box"><strong>🎯 Total Skor Akhir:</strong> ${totalScore}</div>`;
+    }
+  </script>
+</body>
+</html>

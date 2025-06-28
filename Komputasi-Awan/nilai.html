@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rekap Nilai Mahasiswa</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #2a2a40;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #444;
+    }
+
+    th {
+      background-color: #ff2e63;
+    }
+
+    tr:hover {
+      background-color: #383863;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #ff2e63;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: #ff4e7a;
+    }
+
+    .btn-review {
+      padding: 6px 12px;
+      background-color: #08d9d6;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-review:hover {
+      background-color: #0bd3d0;
+    }
+  </style>
+</head>
+<body>
+  <h2>Rekap Nilai Mahasiswa</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th>Tanggal Pengerjaan</th>
+        <th>Skor</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="rekapTbody">
+      <!-- Data akan ditampilkan di sini -->
+    </tbody>
+  </table>
+
+  <button class="btn" onclick="hapusSemua()">Hapus Semua Nilai</button>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem('riwayatKuis')) || [];
+    const tbody = document.getElementById('rekapTbody');
+
+    if (data.length === 0) {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td colspan="5">Belum ada data nilai.</td>`;
+      tbody.appendChild(row);
+    } else {
+      data.forEach((item, i) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${item.nama || '-'}</td>
+          <td>${item.tanggal}</td>
+          <td>${item.skor}</td>
+          <td><button class="btn-review" onclick="lihatJawaban(${i})">Lihat Jawaban</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function hapusSemua() {
+      if (confirm("Yakin ingin menghapus semua data nilai?")) {
+        localStorage.removeItem('riwayatKuis');
+        location.reload();
+      }
+    }
+
+    function lihatJawaban(index) {
+      window.location.href = `review-jawaban.html?index=${index}`;
+    }
+  </script>
+</body>
+</html>

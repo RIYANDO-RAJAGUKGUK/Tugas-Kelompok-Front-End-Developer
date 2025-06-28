@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengaturan & Uji Coba Kuis</title>
+  <link rel="stylesheet" href="./css/quiz-setup.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .form-container, .container {
+      max-width: 800px;
+      margin: auto;
+      background: #2a2a40;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input {
+      padding: 8px;
+      width: 100%;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 25px;
+      background-color: #ff4dd2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: white;
+      color: #ff4dd2;
+    }
+
+    .soal-box {
+      margin-bottom: 20px;
+    }
+
+    .hasil {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #333;
+      border-radius: 8px;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #3a3a55;
+      padding: 10px 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+
+    .status-bar span {
+      font-weight: bold;
+    }
+
+    .timer {
+      color: #ff4dd2;
+    }
+
+    .skor {
+      color: #00ffcc;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Form Pengaturan -->
+  <div class="form-container" id="formPengaturan">
+    <h2>Pengaturan Uji Coba</h2>
+    <form id="quizSetupForm">
+      <label>Nama Siswa:
+        <input type="text" id="namaSiswa" required />
+      </label>
+
+      <label>Jumlah Pilihan Ganda:
+        <input type="number" id="jumlahPG" min="1" max="20" required />
+      </label>
+
+      <label>Jumlah Multi-Choice:
+        <input type="number" id="jumlahMulti" min="0" value="0" />
+      </label>
+
+      <label>Jumlah Esai:
+        <input type="number" id="jumlahEsai" min="0" value="0" />
+      </label>
+
+      <button type="submit">Mulai Kuis</button>
+    </form>
+  </div>
+
+  <!-- Kuis -->
+  <div class="container" id="kuisContainer" style="display:none;">
+    <h2>Sesi Uji Coba Kuis</h2>
+    <div class="status-bar">
+      <span class="timer">⏱️ Waktu: <span id="waktu">30</span> detik</span>
+      <span class="skor">⭐ Skor: <span id="skorSekarang">0</span></span>
+    </div>
+    <div id="soalArea"></div>
+  </div>
+
+  <!-- Hasil -->
+  <div class="container hasil" id="hasilContainer" style="display:none;">
+    <h2>Hasil Uji Coba</h2>
+    <div id="hasilOutput"></div>
+  </div>
+
+  <script>
+    let soalDipilih = [];
+    let namaSiswa = "";
+    let currentIndex = 0;
+    let waktuPerSoal = 30;
+    let intervalId;
+    let totalSkor = 0;
+
+    document.getElementById("quizSetupForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const jumlahPG = parseInt(document.getElementById("jumlahPG").value);
+      const jumlahEsai = parseInt(document.getElementById("jumlahEsai").value);
+      const jumlahMulti = parseInt(document.getElementById("jumlahMulti").value);
+
+      namaSiswa = document.getElementById("namaSiswa").value.trim();
+      localStorage.setItem("namaMahasiswa", namaSiswa);
+
+      const semuaSoal = JSON.parse(localStorage.getItem("questions")) || [];
+
+      const soalPG = semuaSoal.filter(soal => soal.tipe === "pg");
+      const soalEsai = semuaSoal.filter(soal => soal.tipe === "esai");
+      const soalMulti = semuaSoal.filter(soal => soal.tipe === "multi");
+
+      if (soalPG.length < jumlahPG) {
+        alert("Jumlah soal pilihan ganda yang tersedia kurang dari jumlah yang diminta.");
+        return;
+      }
+      if (soalEsai.length < jumlahEsai) {
+        alert("Jumlah soal esai yang tersedia kurang dari jumlah yang diminta.");
+        return;
+      }
+      if (soalMulti.length < jumlahMulti) {
+        alert("Jumlah soal multi-choice yang tersedia kurang dari jumlah yang diminta.");
+        return;
+      }
+
+      soalDipilih = [
+        ...soalPG.sort(() => 0.5 - Math.random()).slice(0, jumlahPG),
+        ...soalEsai.sort(() => 0.5 - Math.random()).slice(0, jumlahEsai),
+        ...soalMulti.sort(() => 0.5 - Math.random()).slice(0, jumlahMulti)
+      ];
+
+      document.getElementById("formPengaturan").style.display = "none";
+      document.getElementById("kuisContainer").style.display = "block";
+
+      currentIndex = 0;
+      totalSkor = 0;
+      document.getElementById("skorSekarang").innerText = 0;
+
+      tampilkanSoal(currentIndex);
+    });
+
+    function tampilkanSoal(index) {
+      const soal = soalDipilih[index];
+      const soalArea = document.getElementById("soalArea");
+      soalArea.innerHTML = "";
+
+      const div = document.createElement("div");
+      div.classList.add("soal-box");
+
+      if (soal.tipe === "pg") {
+        div.innerHTML = `
+          <p><strong>Soal ${index + 1} (PG):</strong> ${soal.question}</p>
+          ${["A", "B", "C", "D"].map(
+            huruf => `
+              <label><input type="radio" name="soal" value="${huruf}"> ${huruf}. ${soal["option" + huruf] || "-"}</label><br>
+            `
+          ).join("")}
+          <button onclick="lanjutSoal()">Jawab</button>
+        `;
+      } else if (soal.tipe === "esai") {
+        div.innerHTML = `
+          <p><strong>Soal ${index + 1} (Esai):</strong> ${soal.question}</p>
+          <textarea name="soal" rows="4" style="width: 100%; border-radius: 5px;"></textarea>
+          <br><button onclick="lanjutSoal()">Jawab</button>
+        `;
+      } else if (soal.tipe === "multi") {
+        div.innerHTML = `
+          <p><strong>Soal ${index + 1} (Multi-Choice):</strong> ${soal.question}</p>
+          ${["A", "B", "C", "D"].map(
+            huruf => `
+              <label><input type="checkbox" name="soal" value="${huruf}"> ${huruf}. ${soal["option" + huruf] || "-"}</label><br>
+            `
+          ).join("")}
+          <button onclick="lanjutSoal()">Jawab</button>
+        `;
+      }
+
+      soalArea.appendChild(div);
+      mulaiTimer();
+    }
+
+    function mulaiTimer() {
+      let waktu = waktuPerSoal;
+      document.getElementById("waktu").innerText = waktu;
+      clearInterval(intervalId);
+
+      intervalId = setInterval(() => {
+        waktu--;
+        document.getElementById("waktu").innerText = waktu;
+
+        if (waktu <= 0) {
+          clearInterval(intervalId);
+          lanjutSoal(); // otomatis lanjut jika waktu habis
+        }
+      }, 1000);
+    }
+
+  function lanjutSoal() {
+    clearInterval(intervalId);
+    const soal = soalDipilih[currentIndex];
+    const waktuTersisa = parseInt(document.getElementById("waktu").innerText);
+    const inputs = document.getElementsByName("soal");
+
+    let skorSoal = 0;
+    const skorMaks = parseInt(soal.score) || 10; // default 10 jika tidak diisi
+
+    if (soal.tipe === "pg") {
+      const jawaban = Array.from(inputs).find(input => input.checked);
+      if (jawaban && jawaban.value === soal.correctAnswer) {
+        skorSoal = skorMaks; // skor full jika benar
+      }
+    } else if (soal.tipe === "esai") {
+      const jawabanEsai = inputs[0].value.trim().toLowerCase();
+      const kunci = soal.correctEssay.trim().toLowerCase();
+      if (jawabanEsai === kunci) {
+        skorSoal = skorMaks;
+      }
+    } else if (soal.tipe === "multi") {
+      const jawabanSiswa = Array.from(inputs).filter(i => i.checked).map(i => i.value.toUpperCase()).sort();
+      const jawabanBenar = soal.correctMulti.split(",").map(j => j.trim().toUpperCase()).sort();
+      if (JSON.stringify(jawabanSiswa) === JSON.stringify(jawabanBenar)) {
+        skorSoal = skorMaks;
+      }
+    }
+
+    totalSkor += skorSoal;
+    document.getElementById("skorSekarang").innerText = totalSkor;
+
+    currentIndex++;
+    if (currentIndex < soalDipilih.length) {
+      tampilkanSoal(currentIndex);
+    } else {
+      selesaikanKuis();
+    }
+  }
+
+
+
+    function selesaikanKuis() {
+      clearInterval(intervalId);
+
+      const hasil = {
+        nama: namaSiswa,
+        skor: totalSkor,
+        tanggal: new Date().toLocaleString()
+      };
+
+      const riwayat = JSON.parse(localStorage.getItem("riwayatKuis")) || [];
+      riwayat.push(hasil);
+      localStorage.setItem("riwayatKuis", JSON.stringify(riwayat));
+      window.location.href = "nilai.html";
+
+      let jawabanDetail = [];
+      const semuaJawaban = JSON.parse(localStorage.getItem("semuaJawaban")) || [];
+      semuaJawaban.push(jawabanDetail);
+      localStorage.setItem("semuaJawaban", JSON.stringify(semuaJawaban));
+
+      document.getElementById("kuisContainer").style.display = "none";
+      document.getElementById("hasilContainer").style.display = "block";
+      document.getElementById("hasilOutput").innerHTML = `
+        <p><strong>Nama:</strong> ${hasil.nama}</p>
+        <p><strong>Skor:</strong> ${hasil.skor}</p>
+        <p><strong>Waktu:</strong> ${hasil.tanggal}</p>
+      `;
+    }
+  </script>
+</body>
+</html>
